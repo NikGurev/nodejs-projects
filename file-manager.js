@@ -1,8 +1,9 @@
 const fs = require('fs');
+const fsPromises = require('fs/promises');
 const path = require('path');
 const process = require('process');
 
-const readline = require('readline').createInterface({
+const readline = require('readline/promises').createInterface({
     input: process.stdin,
     output: process.stdout
 });
@@ -13,24 +14,19 @@ const possibleTasks = `
 `
 
 function main() {
-    readline.question(`What do you want to do?\n ${possibleTasks}`, task => {
-        middleware(task, (stats) => {
+    readline.question(`What do you want to do?\n ${possibleTasks}`).then(task => {
+        parseCommand(task).then((stats) => {
             console.log(stats);
+            process.exit(1);
         });
     });
 }
 
-function middleware(rawTask, cb) {
+function parseCommand(rawTask) {
     const [task, path] = rawTask.split(' ');
     switch (task) {
         case 'fs': {
-            return fs.stat(path, (err, stats) => {
-                if (err) {
-                    console.error(err);
-                    return;
-                }
-                cb(stats);
-            });
+            return fsPromises.stat(path);
         }
         default: {
             console.error('Wrong task');

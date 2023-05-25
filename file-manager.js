@@ -11,12 +11,16 @@ const readline = require('readline/promises').createInterface({
 
 const possibleTasks = `
     fs <file path> - file stats
+    ls             - files/folders in the current directory
 `
 
 function main() {
     readline.question(`What do you want to do?\n ${possibleTasks}`).then(task => {
         parseCommand(task).then((stats) => {
             console.log(stats);
+            process.exit(1);
+        }).catch((err) => {
+            console.error(err);
             process.exit(1);
         });
     });
@@ -28,8 +32,11 @@ function parseCommand(rawTask) {
         case 'fs': {
             return fsPromises.stat(path);
         }
+        case 'ls': {
+            return fsPromises.readdir(process.cwd()).then((data) => data.join('\n'));
+        }
         default: {
-            console.error('Wrong task');
+            return Promise.reject('Wrong task');
         }
     }
 }

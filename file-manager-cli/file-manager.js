@@ -15,19 +15,31 @@ const possibleTasks = `
     ls             - files/folders in the current directory,
     touch <filename> - creates a files in the current directory,
     rmFile <filename> - removes a files in the current directory,
+    rmdir <dirname> - creates a directory in the current directory,
     unlink <from, to> - renames a file
     mkdir <dirname> - creates a dir
-    cat <filename> - read file content
+    cat <filename> - read file content,
+    cd - change current directory
 `
+const args = process.argv.slice(2);
 
+if (args.length) {
+    parseCommand(args.join(' '))
+        .then((log) => console.log(log))
+        .then(() => process.exit(1))
+        .catch((err) => console.error(err));
+} else {
+    const hello = 'Welcome to the file manager v0.0.1!';
+    console.log(hello);
 
+    readline.on('line', (task) => {
+        readline.prompt();
+        parseCommand(task).then((log) => {
+            console.log(log);
+        }).catch((err) => console.error(err));
+    });
+}
 
-readline.on('line', (task) => {
-    readline.prompt();
-    parseCommand(task).then((log) => {
-        console.log(log);
-    }).catch((err) => console.error(err));
-});
 
 function parseCommand(rawTask) {
     const [task, path] = rawTask.split(' ');
@@ -79,6 +91,3 @@ function parseCommand(rawTask) {
         }
     }
 }
-
-const hello = 'Welcome to the file manager v0.0.1!';
-console.log(hello);
